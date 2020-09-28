@@ -2,7 +2,7 @@
 // https://en.wikipedia.org/wiki/Lowest_common_denominator and
 // https://en.wikipedia.org/wiki/Greatest_common_divisor for integers.
 
-object Main extends App {
+object Basics extends App {
   def lcm(a: Int, b: Int): Int = {
     (a*b).abs/gcd(a,b)
   }
