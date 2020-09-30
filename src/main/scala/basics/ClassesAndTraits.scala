@@ -28,9 +28,15 @@ object ClassesAndTraits {
 
   sealed trait Shape extends Located with Bounded
 
+  sealed trait Shape3D extends Shape with Located3D with Bounded3D
+
   sealed trait Located {
     def x: Double
     def y: Double
+  }
+
+  sealed trait Located3D extends Located {
+    def z: Double
   }
 
   sealed trait Bounded {
@@ -40,11 +46,25 @@ object ClassesAndTraits {
     def maxY: Double
   }
 
+  sealed trait Bounded3D extends Bounded {
+    def minZ: Double
+    def maxZ: Double
+  }
+
   final case class Point(x: Double, y: Double) extends Shape {
     override def minX: Double = x
     override def maxX: Double = x
     override def minY: Double = y
     override def maxY: Double = y
+  }
+
+  final case class Point3D(x: Double, y: Double, z: Double) extends Shape3D {
+    override def minX: Double = x
+    override def maxX: Double = x
+    override def minY: Double = y
+    override def maxY: Double = y
+    override def minZ: Double = z
+    override def maxZ: Double = z
   }
 
   final case class Circle(centerX: Double, centerY: Double, radius: Double) extends Shape {
@@ -83,6 +103,18 @@ object ClassesAndTraits {
     override def y: Double = bottomY
   }
 
+  final case class Cube(pointX: Point3D, pointY: Point3D, pointZ: Point3D) extends Shape3D {
+    override def minX: Double = ???
+    override def maxX: Double = ???
+    override def minY: Double = ???
+    override def maxY: Double = ???
+    override def minZ: Double = ???
+    override def maxZ: Double = ???
+    override def x: Double = ???
+    override def y: Double = ???
+    override def z: Double = ???
+  }
+
   def minimumBoundingRectangle(objects: Set[Bounded]): Bounded = {
     new Bounded {
       implicit private val doubleOrdering: Ordering[Double] = Ordering.Double.IeeeOrdering
@@ -116,6 +148,12 @@ object ClassesAndTraits {
   object Origin extends Located {
     override def x: Double = 0
     override def y: Double = 0
+  }
+
+  object Origin3D extends Located3D {
+    override def x: Double = 0
+    override def y: Double = 0
+    override def z: Double = 0
   }
 
   object Bounded {
