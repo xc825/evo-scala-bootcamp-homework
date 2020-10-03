@@ -59,7 +59,6 @@ object ControlStructuresHomework {
 
   def renderResult(x: Result): String = {
     ??? // implement this method
-  }
 
   def process(x: String): String = {
     import cats.implicits._
