@@ -1,6 +1,9 @@
 //package com.evolutiongaming.bootcamp.basics
 
+import javax.naming.spi.DirStateFactory.Result
+
 import scala.io.Source
+import scala.util.{Try, Success, Failure}
 
 object ControlStructuresHomework {
   // Homework
@@ -39,30 +42,51 @@ object ControlStructuresHomework {
 
   final case class ErrorMessage(value: String)
 
-  sealed trait Result
+  sealed trait Result {
+    val value: String
+  }
   final case class ChangeMe(value: String) extends Result // adjust Result as required to match requirements
 
   def parseCommand(x: String): Either[ErrorMessage, Command] = {
     // implement this method
     // Implementation hints:
     // You can use String#split, convert to List using .toList, then pattern match on
-    x.split(" ").toList match {
-      case List() => Left(ErrorMessage("List is empty"))
-      //case "divide" :: xs => Right(Divide(12,12))
-       case _ => Left(ErrorMessage("Not implemented"))
-      }
+    val commandList: List[String] = x.split(" ").toList
+    val numbers: List[Double] = commandList.tail
+                                    .map(s => Try(s.toDouble))
+                                    .collect { case Success(x) => x }
+    commandList.head match {
+      case "divide" => Right(Command.Divide(commandList(1).toDouble, commandList(2).toDouble))
+      case "sum" => Right(Command.Sum(numbers))
+      case "average" => Right(Command.Average(numbers))
+      case "min" => Right(Command.Min(numbers))
+      case "max" => Right(Command.Max(numbers))
+      case _ => Left(ErrorMessage(s"Command '${commandList.head}' not implemented"))
+    }
     // Consider how to handle extra whitespace gracefully (without errors).
   }
 
   // should return an error (using `Left` channel) in case of division by zero and other
   // invalid operations
   def calculate(x: Command): Either[ErrorMessage, Result] = {
-    return Left(ErrorMessage("calculate not implemented yet")) // implement this method
+    x match {
+      case Command.Divide(dividend: Double, divisor: Double) =>
+        Right(ChangeMe(s"divide $dividend $divisor ${(dividend / divisor).toString}"))
+      case Command.Sum(numbers: List[Double]) =>
+        Right(ChangeMe(s"sum ${numbers.mkString(" ")} ${numbers.sum}"))
+      case Command.Average(numbers: List[Double]) =>
+        Right(ChangeMe(s"sum ${numbers.mkString(" ")} ${numbers.sum / numbers.size}"))
+      case Command.Min(numbers: List[Double]) =>
+        Right(ChangeMe(s"sum ${numbers.mkString(" ")} ${numbers.min}"))
+      case Command.Max(numbers: List[Double]) =>
+              Right(ChangeMe(s"sum ${numbers.mkString(" ")} ${numbers.max}"))
+      case _ => Left(ErrorMessage("calculate not implemented yet")) // implement this method
+    }
   }
 
   def renderResult(x: Result): String = {
-    // implement this method
-    return "renderResut: not implemented yet"
+
+    return x.value
   }
 
   def process(x: String): String = {
