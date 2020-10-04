@@ -1,4 +1,4 @@
-package com.evolutiongaming.bootcamp.basics
+//package com.evolutiongaming.bootcamp.basics
 
 import scala.io.Source
 
@@ -43,30 +43,49 @@ object ControlStructuresHomework {
   final case class ChangeMe(value: String) extends Result // adjust Result as required to match requirements
 
   def parseCommand(x: String): Either[ErrorMessage, Command] = {
-    ??? // implement this method
+    // implement this method
     // Implementation hints:
-    // You can use String#split, convert to List using .toList, then pattern match on:
-    //   case x :: xs => ???
-
+    // You can use String#split, convert to List using .toList, then pattern match on
+    x.split(" ").toList match {
+      case List() => Left(ErrorMessage("List is empty"))
+      //case "divide" :: xs => Right(Divide(12,12))
+       case _ => Left(ErrorMessage("Not implemented"))
+      }
     // Consider how to handle extra whitespace gracefully (without errors).
   }
 
   // should return an error (using `Left` channel) in case of division by zero and other
   // invalid operations
   def calculate(x: Command): Either[ErrorMessage, Result] = {
-    ??? // implement this method
+    return Left(ErrorMessage("calculate not implemented yet")) // implement this method
   }
 
   def renderResult(x: Result): String = {
-    ??? // implement this method
+    // implement this method
+    return "renderResut: not implemented yet"
+  }
 
   def process(x: String): String = {
-    import cats.implicits._
+    println("process()")
+    //import cats.implicits._
     // the import above will enable useful operations on Either-s such as `leftMap`
     // (map over the Left channel) and `merge` (convert `Either[A, A]` into `A`),
     // but you can also avoid using them using pattern matching.
 
-    ??? // implement using a for-comprehension
+    // implement using a for-comprehension
+
+    val command: Either[ErrorMessage, Command] = parseCommand(x)
+    val result: Either[ErrorMessage, Result] = command match {
+      case Left(errorMessage) => Left(errorMessage)
+      case Right(command) => calculate(command)
+    }
+
+    val answer: String = result match {
+      case Left(errorMessage) => errorMessage.value
+      case Right(resultNumber) => renderResult(resultNumber)
+    }
+
+    return answer
   }
 
   // This `main` method reads lines from stdin, passes each to `process` and outputs the return value to stdout
