@@ -75,22 +75,28 @@ object ControlStructuresHomework {
       case Command.Sum(numbers: List[Double]) =>
         Right(ChangeMe(s"sum ${numbers.mkString(" ")} ${numbers.sum}"))
       case Command.Average(numbers: List[Double]) =>
-        Right(ChangeMe(s"sum ${numbers.mkString(" ")} ${numbers.sum / numbers.size}"))
+        Right(ChangeMe(s"average ${numbers.mkString(" ")} ${numbers.sum / numbers.size}"))
       case Command.Min(numbers: List[Double]) =>
-        Right(ChangeMe(s"sum ${numbers.mkString(" ")} ${numbers.min}"))
+        Right(ChangeMe(s"min ${numbers.mkString(" ")} ${numbers.min}"))
       case Command.Max(numbers: List[Double]) =>
-              Right(ChangeMe(s"sum ${numbers.mkString(" ")} ${numbers.max}"))
+              Right(ChangeMe(s"max ${numbers.mkString(" ")} ${numbers.max}"))
       case _ => Left(ErrorMessage("calculate not implemented yet")) // implement this method
     }
   }
 
   def renderResult(x: Result): String = {
-
-    return x.value
+    val res: List[String] = x.value.split(" ").toList
+    res.head match {
+      case "divide" => s"${res(1)} divided by ${res(2)} is ${res(3)}}"
+      case "sum" => s"the sum of ${res.slice(1, res.size - 1).mkString(" ")} is ${res.last}"
+      case "average" => s"the average of ${res.slice(1, res.size - 1).mkString(" ")} is ${res.last}"
+      case "min" => s"the minimum of ${res.slice(1, res.size - 1).mkString(" ")} is ${res.last}"
+      case "max" => s"the maximum of ${res.slice(1, res.size - 1).mkString(" ")} is ${res.last}"
+      case _ => s"Could not renderResult '${x.value}''"
+    }
   }
 
   def process(x: String): String = {
-    println("process()")
     //import cats.implicits._
     // the import above will enable useful operations on Either-s such as `leftMap`
     // (map over the Left channel) and `merge` (convert `Either[A, A]` into `A`),
@@ -99,6 +105,7 @@ object ControlStructuresHomework {
     // implement using a for-comprehension
 
     val command: Either[ErrorMessage, Command] = parseCommand(x)
+
     val result: Either[ErrorMessage, Result] = command match {
       case Left(errorMessage) => Left(errorMessage)
       case Right(command) => calculate(command)
