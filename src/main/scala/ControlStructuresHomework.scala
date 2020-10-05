@@ -55,13 +55,21 @@ object ControlStructuresHomework {
     val numbers: List[Double] = commandList.tail
                                     .map(s => Try(s.toDouble))
                                     .collect { case Success(x) => x }
-    commandList.head match {
-      case "divide" => Right(Command.Divide(commandList(1).toDouble, commandList(2).toDouble))
-      case "sum" => Right(Command.Sum(numbers))
-      case "average" => Right(Command.Average(numbers))
-      case "min" => Right(Command.Min(numbers))
-      case "max" => Right(Command.Max(numbers))
-      case _ => Left(ErrorMessage(s"Command '${commandList.head}' not implemented"))
+    numbers.size match {
+      case 0 => Left(ErrorMessage(s"Error. Cannot process command '${x}'"))
+      case _ =>
+        commandList.head match {
+          case "divide" =>
+            numbers.size match {
+              case 2 => Right(Command.Divide(commandList(1).toDouble, commandList(2).toDouble))
+              case _ => Left(ErrorMessage(s"Error. Command Divide can process only exactly two numbers"))
+            }
+          case "sum" => Right(Command.Sum(numbers))
+          case "average" => Right(Command.Average(numbers))
+          case "min" => Right(Command.Min(numbers))
+          case "max" => Right(Command.Max(numbers))
+          case _ => Left(ErrorMessage(s"Error. Command '${commandList.head}' not implemented"))
+        }
     }
     // Consider how to handle extra whitespace gracefully (without errors).
   }
@@ -87,7 +95,7 @@ object ControlStructuresHomework {
   def renderResult(x: Result): String = {
     val res: List[String] = x.value.split(" ").toList
     res.head match {
-      case "divide" => s"${res(1)} divided by ${res(2)} is ${res(3)}}"
+      case "divide" => s"${res(1)} divided by ${res(2)} is ${res(3)}"
       case "sum" => s"the sum of ${res.slice(1, res.size - 1).mkString(" ")} is ${res.last}"
       case "average" => s"the average of ${res.slice(1, res.size - 1).mkString(" ")} is ${res.last}"
       case "min" => s"the minimum of ${res.slice(1, res.size - 1).mkString(" ")} is ${res.last}"
