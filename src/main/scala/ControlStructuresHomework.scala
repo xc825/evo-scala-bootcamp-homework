@@ -51,7 +51,7 @@ object ControlStructuresHomework {
     // implement this method
     // Implementation hints:
     // You can use String#split, convert to List using .toList, then pattern match on
-    val commandList: List[String] = x.split(" ").toList
+    val commandList: List[String] = x.replaceAll("\\s+", " ").split(" ").toList
     val numbers: List[Double] = commandList.tail
                                     .map(s => Try(s.toDouble))
                                     .collect { case Success(x) => x }
