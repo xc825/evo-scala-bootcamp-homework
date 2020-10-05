@@ -56,19 +56,19 @@ object ControlStructuresHomework {
                                     .map(s => Try(s.toDouble))
                                     .collect { case Success(x) => x }
     numbers.size match {
-      case 0 => Left(ErrorMessage(s"Error. Cannot process command '${x}'"))
+      case 0 => Left(ErrorMessage(s"Error: Cannot process command '${x}'"))
       case _ =>
         commandList.head match {
           case "divide" =>
             numbers.size match {
               case 2 => Right(Command.Divide(commandList(1).toDouble, commandList(2).toDouble))
-              case _ => Left(ErrorMessage(s"Error. Command Divide can process only exactly two numbers"))
+              case _ => Left(ErrorMessage(s"Error: Command Divide can process only exactly two numbers"))
             }
           case "sum" => Right(Command.Sum(numbers))
           case "average" => Right(Command.Average(numbers))
           case "min" => Right(Command.Min(numbers))
           case "max" => Right(Command.Max(numbers))
-          case _ => Left(ErrorMessage(s"Error. Command '${commandList.head}' not implemented"))
+          case _ => Left(ErrorMessage(s"Error: Command '${commandList.head}' not implemented"))
         }
     }
     // Consider how to handle extra whitespace gracefully (without errors).
@@ -88,7 +88,7 @@ object ControlStructuresHomework {
         Right(ChangeMe(s"min ${numbers.mkString(" ")} ${numbers.min}"))
       case Command.Max(numbers: List[Double]) =>
               Right(ChangeMe(s"max ${numbers.mkString(" ")} ${numbers.max}"))
-      case _ => Left(ErrorMessage("calculate not implemented yet")) // implement this method
+      case _ => Left(ErrorMessage("Error: No such command")) // implement this method
     }
   }
 
@@ -100,7 +100,7 @@ object ControlStructuresHomework {
       case "average" => s"the average of ${res.slice(1, res.size - 1).mkString(" ")} is ${res.last}"
       case "min" => s"the minimum of ${res.slice(1, res.size - 1).mkString(" ")} is ${res.last}"
       case "max" => s"the maximum of ${res.slice(1, res.size - 1).mkString(" ")} is ${res.last}"
-      case _ => s"Could not renderResult '${x.value}''"
+      case _ => s"Error: Could not renderResult '${x.value}''"
     }
   }
 
