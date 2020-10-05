@@ -121,7 +121,7 @@ object ControlStructuresHomework {
 
     val answer: String = result match {
       case Left(errorMessage) => errorMessage.value
-      case Right(resultNumber) => renderResult(resultNumber)
+      case Right(result) => renderResult(result)
     }
 
     return answer
