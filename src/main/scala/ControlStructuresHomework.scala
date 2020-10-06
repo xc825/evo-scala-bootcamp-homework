@@ -42,10 +42,7 @@ object ControlStructuresHomework {
 
   final case class ErrorMessage(value: String)
 
-  sealed trait Result {
-    val value: String
-  }
-  final case class ChangeMe(value: String) extends Result // adjust Result as required to match requirements
+  final case class Result(value: Double, command: Command)
 
   def parseCommand(x: String): Either[ErrorMessage, Command] = {
     // implement this method
@@ -79,28 +76,28 @@ object ControlStructuresHomework {
   def calculate(x: Command): Either[ErrorMessage, Result] = {
     x match {
       case Command.Divide(dividend: Double, divisor: Double) =>
-        Right(ChangeMe(s"divide $dividend $divisor ${(dividend / divisor).toString}"))
+        Right(Result(dividend / divisor, x))
       case Command.Sum(numbers: List[Double]) =>
-        Right(ChangeMe(s"sum ${numbers.mkString(" ")} ${numbers.sum}"))
+        Right(Result(numbers.sum, x))
       case Command.Average(numbers: List[Double]) =>
-        Right(ChangeMe(s"average ${numbers.mkString(" ")} ${numbers.sum / numbers.size}"))
+        Right(Result(numbers.sum / numbers.size, x))
       case Command.Min(numbers: List[Double]) =>
-        Right(ChangeMe(s"min ${numbers.mkString(" ")} ${numbers.min}"))
+        Right(Result(numbers.min, x))
       case Command.Max(numbers: List[Double]) =>
-              Right(ChangeMe(s"max ${numbers.mkString(" ")} ${numbers.max}"))
+        Right(Result(numbers.max, x))
       case _ => Left(ErrorMessage("Error: No such command")) // implement this method
     }
   }
 
   def renderResult(x: Result): String = {
-    val res: List[String] = x.value.split(" ").toList
-    res.head match {
-      case "divide" => s"${res(1)} divided by ${res(2)} is ${res(3)}"
-      case "sum" => s"the sum of ${res.slice(1, res.size - 1).mkString(" ")} is ${res.last}"
-      case "average" => s"the average of ${res.slice(1, res.size - 1).mkString(" ")} is ${res.last}"
-      case "min" => s"the minimum of ${res.slice(1, res.size - 1).mkString(" ")} is ${res.last}"
-      case "max" => s"the maximum of ${res.slice(1, res.size - 1).mkString(" ")} is ${res.last}"
-      case _ => s"Error: Could not renderResult '${x.value}''"
+    //val res: List[String] = x.value.split(" ").toList
+    x.command match {
+      case Command.Divide(dividend, divisor) => s"$dividend divided by $divisor is ${x.value}"
+      case Command.Sum(numbers) => s"the sum of ${numbers.mkString(" ")} is ${x.value}"
+      case Command.Average(numbers) => s"the average of ${numbers.mkString(" ")} is ${x.value}"
+      case Command.Min(numbers) => s"the minimum of ${numbers.mkString(" ")} is ${x.value}"
+      case Command.Max(numbers) => s"the maximum of ${numbers.mkString(" ")} is ${x.value}"
+      case _ => s"Error: Could not renderResult"
     }
   }
 
