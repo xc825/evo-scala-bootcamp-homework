@@ -48,30 +48,32 @@ object ControlStructuresHomework {
     // implement this method
     // Implementation hints:
     // You can use String#split, convert to List using .toList, then pattern match on
+    // Consider how to handle extra whitespace gracefully (without errors).
     val commandList: List[String] = x.replaceAll("\\s+", " ").split(" ").toList
     val numbers: List[Double] = commandList.tail.filter(_.matches("^\\d*\\.?\\d*$")).map(_.toDouble)
     val nonNumbers: List[String] = commandList.tail.filterNot(_.matches("^\\d*\\.?\\d*$"))
 
-    if (nonNumbers.size > 0)
-      return (Left(ErrorMessage(s"Error: command '${x}' contains non number element(s): '${nonNumbers.mkString(" ")}'")))
-
-    numbers.size match {
-      case 0 => Left(ErrorMessage(s"Error: Cannot process command '${x}'"))
-      case _ =>
-        commandList.head match {
-          case "divide" =>
-            numbers.size match {
-              case 2 => Right(Command.Divide(commandList(1).toDouble, commandList(2).toDouble))
-              case _ => Left(ErrorMessage(s"Error: Command Divide can process only exactly two numbers"))
-            }
-          case "sum" => Right(Command.Sum(numbers))
-          case "average" => Right(Command.Average(numbers))
-          case "min" => Right(Command.Min(numbers))
-          case "max" => Right(Command.Max(numbers))
-          case _ => Left(ErrorMessage(s"Error: No such command: '${commandList.head}''"))
-        }
+    if (nonNumbers.size > 0) {
+       Left(ErrorMessage(s"Error: command '${x}' contains non number element(s): '${nonNumbers.mkString(" ")}'"))
     }
-    // Consider how to handle extra whitespace gracefully (without errors).
+    else {
+      numbers.size match {
+        case 0 => Left(ErrorMessage(s"Error: Cannot process command '${x}'"))
+        case _ =>
+          commandList.head match {
+            case "divide" =>
+              numbers.size match {
+                case 2 => Right(Command.Divide(commandList(1).toDouble, commandList(2).toDouble))
+                case _ => Left(ErrorMessage(s"Error: Command Divide can process only exactly two numbers"))
+              }
+            case "sum" => Right(Command.Sum(numbers))
+            case "average" => Right(Command.Average(numbers))
+            case "min" => Right(Command.Min(numbers))
+            case "max" => Right(Command.Max(numbers))
+            case _ => Left(ErrorMessage(s"Error: No such command: '${commandList.head}''"))
+          }
+      }
+    }
   }
 
   // should return an error (using `Left` channel) in case of division by zero and other
