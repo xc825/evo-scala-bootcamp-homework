@@ -49,9 +49,12 @@ object ControlStructuresHomework {
     // Implementation hints:
     // You can use String#split, convert to List using .toList, then pattern match on
     val commandList: List[String] = x.replaceAll("\\s+", " ").split(" ").toList
-    val numbers: List[Double] = commandList.tail
-                                    .map(s => Try(s.toDouble))
-                                    .collect { case Success(x) => x }
+    val numbers: List[Double] = commandList.tail.filter(_.matches("^\\d*\\.?\\d*$")).map(_.toDouble)
+    val nonNumbers: List[String] = commandList.tail.filterNot(_.matches("^\\d*\\.?\\d*$"))
+
+    if (nonNumbers.size > 0)
+      return (Left(ErrorMessage(s"Error: command '${x}' contains non number element(s): '${nonNumbers.mkString(" ")}'")))
+
     numbers.size match {
       case 0 => Left(ErrorMessage(s"Error: Cannot process command '${x}'"))
       case _ =>
@@ -65,7 +68,7 @@ object ControlStructuresHomework {
           case "average" => Right(Command.Average(numbers))
           case "min" => Right(Command.Min(numbers))
           case "max" => Right(Command.Max(numbers))
-          case _ => Left(ErrorMessage(s"Error: Command '${commandList.head}' not implemented"))
+          case _ => Left(ErrorMessage(s"Error: No such command: '${commandList.head}''"))
         }
     }
     // Consider how to handle extra whitespace gracefully (without errors).
