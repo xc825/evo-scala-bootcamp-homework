@@ -34,7 +34,7 @@ object ImplicitsHomework {
 
     object syntax {
       implicit class GetSizeScoreOps[T: GetSizeScore](inner: T) {
-        def sizeScore: SizeScore = ??? //implement the syntax!
+        def sizeScore: SizeScore =  implicitly[GetSizeScore[T]].apply(inner) //implement the syntax!
       }
     }
 
@@ -59,9 +59,20 @@ object ImplicitsHomework {
        */
       private val map = mutable.LinkedHashMap.empty[K, V]
 
-      def put(key: K, value: V): Unit = ???
+      def put(key: K, value: V): Unit = {
+        println(s"map.size ${map.size}")
+        while ((map.foldLeft(0)(_+_._1.sizeScore) + map.foldLeft(0)(_+_._2.sizeScore) + key.sizeScore + value.sizeScore > maxSizeScore) && map.nonEmpty) {
+          println("droping" + map.head.toString)
+          map.remove(map.head._1)
+        }
+        println(s"map.size ${map.size}")
+        map += (key -> value)
+      }
 
-      def get(key: K): Option[V] = ???
+      def get(key: K): Option[V] = {
+        if (map.nonEmpty) map.get(key)
+        else None
+      }
     }
 
     /**
