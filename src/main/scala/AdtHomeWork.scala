@@ -20,13 +20,43 @@ import sun.security.krb5.internal.crypto.Nonce.value
 // https://alvinalexander.com/scala/fp-book/algebraic-data-types-adts-in-scala/
 // https://en.wikipedia.org/wiki/Algebraic_data_type
 
+import scala.util.control.Exception._
 
-final case class Card (rank: Int, suit: Char)
+case class Rank(val rank: Char) {
+   def apply( rank: Char): Rank = {
+    val ranks: Set[Char] = Set( '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A')
+    if (ranks.contains(rank))
+      Rank(rank)
+    else
+      throw new Exception(s"$rank is not valid rank.")
+  }
+}
 
-sealed trait Hand
+case class Suit(val suit: Char) {
+   def apply( suit: Char): Suit = {
+    val suits: Set[Char] = Set('c', 'd', 'h', 's')
+    if (suits.contains(suit))
+      Suit(suit)
+    else
+      throw new Exception(s"$suit is not valid suit.")
+  }
+}
+
+final case class Card (val rank: Rank, val suit: Suit)
+
+//sealed abstract class Hand
+//object Hand {
+  //case class Omaha (cards: Set[Card]) extends Hand
+  //case class Texas (cards: Set[Card]) extends Hand
+//}
+
+final case class Hand private (cards: Set[Card], isOmaha: Boolean = false)
 object Hand {
-  case class Omaha (cards: Set[Card]) extends Hand
-  case class Texas (cards: Set[Card]) extends Hand
+  def create(cards: Set[Card], isOmaha: Boolean = false): Option[Hand] = cards.size match {
+    case 2 if !isOmaha => Some(Hand(cards))
+    case 4 if isOmaha  => Some(Hand(cards))
+    case _             => None
+  }
 }
 
 class Board(cards: Set[Card])
@@ -45,6 +75,6 @@ object PokerCombination {
   case class RoyalFlush (cards: Set[Card]) extends PokerCombination
 }
 
-class TestCase (board: Board, hands: Hand)
+class TestCase(board: Board, hands: List[Hand])
 
 class TestResult(combination: PokerCombination)
