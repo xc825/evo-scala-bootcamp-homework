@@ -117,7 +117,7 @@ object ClassesAndTraits {
 
   def minimumBoundingRectangle(objects: Set[Bounded]): Bounded = {
     new Bounded {
-      implicit private val doubleOrdering: Ordering[Double] = Ordering.Double.IeeeOrdering
+      implicit private val doubleOrdering: Ordering[Double] = ???
       override def minX: Double = objects.map(_.minX).min
       override def maxX: Double = objects.map(_.maxX).max
       override def minY: Double = objects.map(_.minY).min
