@@ -60,13 +60,14 @@ object ImplicitsHomework {
       private val map = mutable.LinkedHashMap.empty[K, V]
 
       def put(key: K, value: V): Unit = {
-        println(s"map.size ${map.size}")
-        while ((map.foldLeft(0)(_+_._1.sizeScore) + map.foldLeft(0)(_+_._2.sizeScore) + key.sizeScore + value.sizeScore > maxSizeScore) && map.nonEmpty) {
-          println("droping" + map.head.toString)
+        while ((map.foldLeft(0)(_+_._1.sizeScore) + map.foldLeft(0)(_+_._2.sizeScore) +
+            key.sizeScore + value.sizeScore > maxSizeScore) && map.nonEmpty) {
           map.remove(map.head._1)
         }
-        println(s"map.size ${map.size}")
-        map += (key -> value)
+        if (map.foldLeft(0)(_+_._1.sizeScore) + map.foldLeft(0)(_+_._2.sizeScore) +
+          key.sizeScore + value.sizeScore <= maxSizeScore) {
+          map += (key -> value)
+        }
       }
 
       def get(key: K): Option[V] = {
@@ -112,6 +113,17 @@ object ImplicitsHomework {
       //Provide Iterate2 instances for Map and PackedMultiMap!
       //if the code doesn't compile while you think it should - sometimes full rebuild helps!
 
+
+      implicit val mapIterate: Iterate2[Map] = new Iterate2[Map] {
+        override def iterator1[T, S](f: Map[T, S]): Iterator[T] = f.keys.iterator
+        override def iterator2[T, S](f: Map[T, S]): Iterator[S] = f.values.iterator
+      }
+
+      implicit val packedMultiMapIterate: Iterate2[PackedMultiMap] = new Iterate2[PackedMultiMap] {
+        override def iterator1[T, S](f: PackedMultiMap[T, S]): Iterator[T] = f.inner.map({ case (k, _) => k }).iterator
+        override def iterator2[T, S](f: PackedMultiMap[T, S]): Iterator[S] = f.inner.map({ case (_, v) => v }).iterator
+      }
+
       /*
       replace this big guy with proper implicit instances for types:
       - Byte, Char, Int, Long
@@ -123,7 +135,26 @@ object ImplicitsHomework {
       If you struggle with writing generic instances for Iterate and Iterate2, start by writing instances for
       List and other collections and then replace those with generic instances.
        */
-      implicit def stubGetSizeScore[T]: GetSizeScore[T] = (_: T) => 42
+      val ObjectHeaderSize = 12
+
+      implicit def getByteSizeScore: GetSizeScore[Byte] = (_: Byte) => 1
+      implicit def getIntSizeScore: GetSizeScore[Int] = (_: Int) => 4
+      implicit def getLongSizeScore: GetSizeScore[Long] = (_: Long) => 8
+      implicit def getCharSizeScore: GetSizeScore[Char] = (_: Char) => 2
+      implicit def getStringSizeScore: GetSizeScore[String] = (s: String) => ObjectHeaderSize + s.length * 2
+
+      implicit def iterableSizeScore[F[_]: Iterate, T: GetSizeScore]: GetSizeScore[F[T]] = (sequence: F[T]) =>
+        ObjectHeaderSize + implicitly[Iterate[F]].iterator(sequence).map(_.sizeScore).sum
+
+      implicit def mapSizeScore[F[_, _] : Iterate2, T: GetSizeScore, S: GetSizeScore]: GetSizeScore[F[T, S]] =
+        (sequence: F[T, S]) => {
+          val iterate = implicitly[Iterate2[F]]
+          ObjectHeaderSize +
+            iterate.iterator1(sequence).map(_.sizeScore).sum +
+            iterate.iterator2(sequence).map(_.sizeScore).sum
+        }
+
+      //implicit def stubGetSizeScore[T]: GetSizeScore[T] = (_: T) => 42
     }
   }
 
@@ -133,6 +164,8 @@ object ImplicitsHomework {
    */
   object MyTwitter {
     import SuperVipCollections4s._
+    import instances._
+    import syntax._
 
     final case class Twit(
                            id: Long,
@@ -148,6 +181,19 @@ object ImplicitsHomework {
                               watchedPewDiePieTimes: Long,
                             )
 
+
+    implicit def fbiNoteSizeScore: GetSizeScore[FbiNote] = note =>
+      note.month.sizeScore + note.favouriteChar.sizeScore + note.watchedPewDiePieTimes.sizeScore
+
+    implicit def twitSizeScore: GetSizeScore[Twit] = tweet => {
+      ObjectHeaderSize +
+        tweet.id.sizeScore +
+        tweet.userId.sizeScore +
+        tweet.hashTags.sizeScore +
+        tweet.attributes.sizeScore +
+        tweet.fbiNotes.sizeScore
+    }
+
     trait TwitCache {
       def put(twit: Twit): Unit
       def get(id: Long): Option[Twit]
@@ -156,6 +202,11 @@ object ImplicitsHomework {
     /*
     Return an implementation based on MutableBoundedCache[Long, Twit]
      */
-    def createTwitCache(maxSizeScore: SizeScore): TwitCache = ???
+    def createTwitCache(maxSizeScore: SizeScore): TwitCache = new TwitCache {
+      import instances._
+      val map = new MutableBoundedCache[Long, Twit](maxSizeScore = maxSizeScore)
+      override def put(twit: Twit): Unit = map.put(twit.id, twit)
+      override def get(id: Long): Option[Twit] = map.get(id)
+    }
   }
 }
